@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Quiz.js</title>
+    <style>
+        body {
+            margin: 1rem auto;
+            padding: 3rem;
+            font-family: sans-serif;
+            
+
+        }
+        header {
+            width: 50%;
+            margin: 1em auto;
+        }
+        main {
+            min-width: 25rem;
+            max-width: 50%;
+            margin: 0px auto;
+            display:flex; 
+            flex-direction: column;
+        }
+        h1{
+            text-align: center;
+            color: rgba(0, 0, 255, 0.608);
+        }
+        p{
+            margin-top: 1rem;
+            font-size: large;
+            text-align: center;
+            color: rgba(0, 0, 255, 0.608);
+        }
+        #statement {
+            border: 1px solid black;
+            border-radius: 0.5rem;
+            box-shadow: 5px 5px 5px gray;
+            padding: 1rem;
+            font-size: x-large;
+            text-align: center;
+            margin: 1rem 0px;
+            min-height: 2em;
+        }
+        #explanation {
+            padding: 1rem;
+            text-align: center;
+        }
+        #options {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        button {
+            padding: 0.5rem;
+            font-size: medium;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+        }
+        
+        #next-button{
+            padding: 0.5rem;
+            font-size: medium;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            background-color: rgba(0, 255, 255, 0.44);
+            text-align: center;
+            cursor: pointer;
+        }
+        .correct {
+            background-color: rgba(0, 128, 0, 0.73);
+        }
+        .incorrect {
+            background-color: rgba(255, 0, 0, 0.73);
+        }
+        .hidden{
+            display: none;
+        }
+        .score{
+            margin-top: 1rem;
+            font-size: large;
+            text-align: center;
+            background-color: rgba(0, 255, 255, 0.44);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            width: 48%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <h1>Quiz.js</h1>
+    <p>Do you know JS? Find out!</p>
+    </header>
+    <div class="score">score: <span id="correct">0</span> / <span id="completed">0</span></div>
+    <main>
+    <div id="statement">
+        
+    </div>
+
+    <div id="options">
+        <button name="true" value="true" style="font-weight: bold; font-size: 17px;">True</button>
+        <button name="false" value="false" style="font-weight: bold; font-size: 17px;">False</button>
+    </div>
+    <button id="next-button" disabled="disabled">Next Option</button>
+
+    <div id="explanation">
+
+    </div>
+
+    </main>
+
+
+<script type="text/javascript">
+
+
+
+    // Declare & assign a variable called facts
+    // Its value should be an object with a statement, true/false answer, and explanation 
+    const facts = [
+    {
+        'statement': 'JavaScript is a programming language that adds interactivity to web pages.',
+        'answer': true,
+        'explanation': 'JavaScript enables web pages to be dynamically updated by changing the content, styling, or behavior.'
+    }, 
+
+    {
+    'statement':'String is mutable in JavaScript',
+    'answer': false,
+    'explanation': 'In JavaScript, strings are immutable, meaning you cannot change their content after they have been created.'
+    },
+    
+    {
+        'statement': '1 + 1 === 2',
+        'answer': true,
+        'explanation': 'The plus operator gives the sum of two numbers.'
+    },
+
+    {
+        'statement': "'1' + '1' === '2'",
+        'answer': false,
+        'explanation': 'The plus operator concatenates (joins together) strings, so "1" + "1" === "11".'
+    },
+
+    {
+        'statement':'function is mutable in JavaScript',
+        'answer':true,
+        'explanation': 'Arrays have the type "object". In JS, everything is either a primitive data type (e.g. "string", "number") or an object. Arrays are a kind of object with some special properties.  '
+
+    },
+
+    {
+        statement: "In JavaScript, `null` is an object.",
+        answer: true,
+        explanation: "The `typeof null` returns 'object' due to a bug in the original JavaScript implementation."
+    },
+
+    {
+        statement: "JavaScript is a strongly typed language.",
+        answer: false,
+        explanation: "JavaScript is a loosely typed (or dynamically typed) language, meaning you don't need to declare variable types."
+    },
+
+    {
+        statement: "`const` allows reassigning a variable's value after it is initialized.",
+        answer: false,
+        explanation: "`const` creates a constant that cannot be reassigned. However, if the constant holds an object or array, its properties or elements can be modified."
+    },
+
+    {
+        statement: "Functions in JavaScript can be stored in variables.",
+        answer: true,
+        explanation: "JavaScript functions are first-class citizens, meaning they can be assigned to variables, passed as arguments, or returned from other functions."
+    },
+
+    {
+        statement: "Arrow functions bind their own `this` context.",
+        answer: false,
+        explanation: "Arrow functions inherit `this` from their surrounding context rather than binding their own `this`."
+    }
+
+    ];
+
+    
+     // Declare & assign variables pointing to the corresponding element(s)
+    // statement should be the "statement" div
+    let statement = document.getElementById('statement')
+    // optionButtons should be all the elements within the "options" div
+    let optionButtons = document.getElementById('options').children;
+    // explanation should be the "explanation" div
+    let explanation = document.getElementById('explanation')
+    // nextButton should be the next-button div
+    let nextButton = document.getElementById('next-button')
+    // declare variables for the score calculation
+    let correct = 0;
+    let completed = 0;
+
+    // Declare disable & enable functions to set or remove the "disabled" attribute from a given button element
+    // disable(button) should set the button element's attribute "disabled" to the value ""
+    function disable(button) {
+        button.setAttribute('disabled',"")
+    }
+    // enable(button) should remove the attribute "disabled" from the button element
+    function enable (button){
+        button.removeAttribute('disabled')
+    }
+    // make a hide function 
+    function hide(element){
+        element.classList.add("hidden")
+    }
+    // make a show function
+    function show(element){
+        element.classList.remove("hidden")
+    }
+    // make a nextFact function which work on nextButton
+    let fact;
+    function getNextFact(){
+        fact = facts.shift();
+        // display the statement
+        statement.textContent = fact.statement
+        // remove the previous explanation
+        hide(explanation)
+
+        for (let option of optionButtons){
+            // clear the previous classes
+            option .classList.remove('correct')
+            option.classList.remove('incorrect')
+            // make sure that buttons are enabled
+            enable(option)
+        }
+
+        // disable the next Button
+        disable(nextButton)
+        console.log(nextButton)
+    }
+
+    // addEventLister to the next button event
+    nextButton.addEventListener('click', getNextFact)
+
+    // add an event listener to the option buttons
+    for (let button of optionButtons){
+        button.addEventListener("click", (event) => {
+            for (let disableButton of optionButtons){
+                disable(disableButton)
+            }
+            // show the explanation
+            explanation.innerText = fact.explanation
+            show(explanation)
+
+            console.log(event.target.value)
+            console.log(fact.answer)
+            // check if the guess is correct and add the appropriate class
+            if (event.target.value === fact.answer.toString()){
+                event.target.classList.add('correct')
+                correct += 1
+            }  else {
+                event.target.classList.add('incorrect')
+            }
+
+            // Within the event handler function,
+            // Check if there are any more facts left in the facts array
+            if (facts.length > 0){
+                enable(nextButton)
+            } else {
+                nextButton.textContent = "No more questions!"
+            }
+            // update the score
+            completed += 1
+            document.getElementById('correct').textContent = correct
+            document.getElementById('completed').textContent = completed;
+        })
+    }
+    // call the nextFact function
+    getNextFact()
+</script>
+
+</body>
+</html>
